@@ -1,16 +1,23 @@
-# This is a sample Python script.
-
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
+from Routers.users import router as users_router
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from Conexiones.Conexion import Conexion
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # STARTUP
+    await Conexion.obtener_pool()
+    yield
+    # SHUTDOWN
+    await Conexion.cerrar_pool()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+app = FastAPI(
+    title="Proyecto API",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Registrar routers
+app.include_router(users_router)
+
